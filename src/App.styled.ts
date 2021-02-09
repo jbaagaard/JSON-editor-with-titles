@@ -66,7 +66,8 @@ export const JSONListItemTitle = styled.div`
 `
 
 export const JSONListItemInput = styled.textarea`
-        padding-left: 16px;
+  resize: vertical;
+  padding-left: 16px;
   min-height: 24px;
   width: 50%;
   margin: auto 0;
