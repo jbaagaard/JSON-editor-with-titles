@@ -35,6 +35,7 @@ function App() {
     }
 
     const generateFormEditor = () => {
+        menu = [];
         let ret:ReactNode[] = []
         Object.keys(json).map(function(key, index) {
             if(key.charAt(0)! === '#' && key.charAt(1)! === '#'){
