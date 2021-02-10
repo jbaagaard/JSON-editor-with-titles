@@ -130,18 +130,68 @@ export const DownloadButton = styled.button`
   }
 `
 
-export const Menu = styled.div`
+export const Menu = styled.div<{open:boolean}>`
   position: fixed;
   z-index: 10;
   width: fit-content;
-  height: fit-content;
+  height: ${props => props.open? "auto":"24px"};
+  transition: height 100ms linear;
   top: 0;
   background-color: #fff;
   padding: 16px;
   margin: 16px;
   border-radius: 16px;
   box-shadow: 5px 5px 15px 5px rgba(0,0,0,0.04);
+  overflow: hidden;
+  
 `
+
+export const MenuHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  height: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+`
+
+export const MenuTitle = styled.div`
+  
+`
+export const MenuBurger = styled.div<{open:boolean}>`
+  box-sizing: border-box;
+  margin-top: 4px;
+  height: 24px;
+  width: 24px;
+  background-color: ${props => props.open? "none":"rgba(255,100,100)"};
+  position: relative;
+  border-bottom: 22px solid white;
+  &:before{
+    border-radius: 3px;
+    position: absolute;
+    content: "";
+    height: 2px;
+    width: 100%;
+    top: 7px;
+    background-color: rgba(255,100,100);
+    transform: ${props => props.open? "rotate(45deg)":"0"};
+    transition: transform 100ms;
+
+  }
+  &:after{
+      border-radius: 3px;
+       position: absolute;
+       content: "";
+       height: 2px;
+       width: 100%;
+       top: ${props => props.open? "7px":"14px"};
+       background-color: rgba(255,100,100);
+       transform: ${props => props.open? "rotate(-45deg)":"0"};
+    transition: transform 100ms;
+     }
+  
+`
+
+
 export const MenuItem = styled.div<{type:string}>`
   margin-bottom: 2px;
   margin-left: ${props => props.type === "H1"? "0":"40px"};

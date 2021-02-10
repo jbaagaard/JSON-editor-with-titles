@@ -114,8 +114,15 @@ type MenuProps = {
     list:ReactNode[]
 }
 const Menu = ({list}:MenuProps) => {
+    const [open,setOpen] = useState(true)
     return(
-        <S.Menu>
+        <S.Menu open={open}>
+            <S.MenuHeader>
+                <S.MenuTitle>Menu</S.MenuTitle>
+                <S.MenuBurger open={open} onClick={() => {
+    setOpen(!open)
+}}/>
+            </S.MenuHeader>
             {list.map(x => x)}
         </S.Menu>
     )
