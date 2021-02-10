@@ -1,4 +1,5 @@
 import styled from "styled-components"
+import {type} from "os";
 
 export const Wrapper = styled.div`
   
@@ -129,4 +130,26 @@ export const DownloadButton = styled.button`
   }
 `
 
+export const Menu = styled.div`
+  position: fixed;
+  z-index: 10;
+  width: fit-content;
+  height: fit-content;
+  top: 0;
+  background-color: #fff;
+  padding: 16px;
+  margin: 16px;
+  border-radius: 16px;
+  box-shadow: 5px 5px 15px 5px rgba(0,0,0,0.04);
+`
+export const MenuItem = styled.div<{type:string}>`
+  margin-bottom: 2px;
+  margin-left: ${props => props.type === "H1"? "0":"40px"};
+  user-select: none;
+  
+  &:hover{
+    text-decoration: underline;
+    cursor: pointer;
+  }
+`
 
