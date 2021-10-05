@@ -1,110 +1,89 @@
-import React, {ReactNode, useState} from 'react';
-import * as S from "./App.styled"
-import Logo from './icons/file-text.svg'
-import {Link} from 'react-scroll'
+import React, { useState } from "react";
+import * as S from "./App.styled";
+import Logo from "./icons/file-text.svg";
+import { Link } from "react-scroll";
+import Section from "./Section";
 
-let json:any;
-let jsonFilename:string="";
+export let json: any;
 
-let menu:ReactNode[] = [];
-
-
-function download(){
-    return `data:text/json;charset=utf-8,${encodeURIComponent(
-        JSON.stringify(json)
-    )}`
-}
-function fileName(){
-    const d = new Date();
-    return jsonFilename.slice(0,-5)+"(edit: "+d.toISOString()+").json";
+export function keyToLinkString(key: string) {
+  return "menuitem" + key.replaceAll("-", "");
 }
 
 function App() {
-    const [fileLoaded, setFileLoaded] = useState(false);
-    const [updated, update] = useState(0);
+  const [update, setUpdate] = useState(0);
+  const [fileName, setFileName] = useState("");
 
-    async function handleUpload(event:any) {
-        json = JSON.parse(await event.target.files[0].text());
-        jsonFilename = await event.target.files[0].name;
-        setFileLoaded(true);
-    }
+  function createFileName() {
+    const d = new Date();
+    return fileName.slice(0, -5) + "(edit: " + d.toISOString() + ").json";
+  }
 
-    const handleChange = (event:any) => {
-        update(updated+1)
-        json[event.currentTarget.name] = event.currentTarget.value
-    }
+  async function handleUpload(event: any) {
+    json = JSON.parse(await event.target.files[0].text());
+    const name = await event.target.files[0].name;
+    setTimeout(async () => {
+      setFileName(name);
+    }, 100);
+    console.log({ json });
+  }
 
-    const generateFormEditor = () => {
-        menu = [];
-        let ret:ReactNode[] = []
-        Object.keys(json).map(function(key, index) {
-            if(key.charAt(0)! === '#' && key.charAt(1)! === '#'){
-                menu.push(<Link to={key} smooth={true} duration={200}><S.MenuItem type={"H2"} >{key.substring(2)}</S.MenuItem></Link>)
-                ret.push(
-                    <S.JSONListItemWrapper>
-                        <S.JSONListItemH2 id={key}>{key.substring(2)}</S.JSONListItemH2>
-                    </S.JSONListItemWrapper>
-                )
-            }
-            else if(key.charAt(0)! === '#'){
-                menu.push(<Link to={key} smooth={true} duration={200}><S.MenuItem type={"H1"} >{key.substring(1)}</S.MenuItem></Link>)
-                ret.push(
-                    <S.JSONListItemWrapper>
-                        <S.JSONListItemH1 id={key}>{key.substring(1)}</S.JSONListItemH1>
-                    </S.JSONListItemWrapper>
-                )
-            }
-        else
-            {
-                ret.push(
-                    <S.JSONListItemWrapper>
-                        <S.JSONListItem>
-                            <S.JSONListItemTitle>{key}: </S.JSONListItemTitle>
-                            <S.JSONListItemInput defaultValue={json[key]} rows={3} name={key} onChange={handleChange}/>
-                        </S.JSONListItem>
-                    </S.JSONListItemWrapper>
+  function download() {
+    return `data:text/json;charset=utf-8,${encodeURIComponent(
+      JSON.stringify(json)
+    )}`;
+  }
 
-                );
-            }
-
-        });
-        return ret
-
-    }
+  function handleSectionOnChange(
+    sectionKey: string,
+    propertyKey: string,
+    value: string
+  ) {
+    json[sectionKey][propertyKey] = value;
+    setUpdate(update + 1);
+  }
 
   return (
     <S.Wrapper className="App">
       <S.Content>
-          <S.Header>
-              <S.IconWrapper>
-                  <S.Icon>
-                      <img src={Logo} alt={"logo"}/>
-                  </S.Icon>
-              </S.IconWrapper>
-              <S.Title>JSON editor</S.Title>
-          </S.Header>
+        <S.Header>
+          <S.IconWrapper>
+            <S.Icon>
+              <img src={Logo} alt={"logo"} />
+            </S.Icon>
+          </S.IconWrapper>
+          <S.Title>JSON editor</S.Title>
+        </S.Header>
       </S.Content>
+      {!fileName && (
         <S.Content>
-            <S.FileWrapper loaded={fileLoaded}>
-                <div id="upload-box">
-                    <input type="file" onChange={handleUpload} />
-                </div>
-            </S.FileWrapper>
+          <S.FileWrapper>
+            <div id="upload-box">
+              <input type="file" onChange={handleUpload} />
+            </div>
+          </S.FileWrapper>
         </S.Content>
-        <S.JSONWrapper>
+      )}
+      {!!fileName && (
+        <>
+          <S.JSONWrapper>
             <S.JSONList>
-                {fileLoaded? generateFormEditor() : ""}
+              {Object.keys(json).map((s) => (
+                <Section sectionKey={s} onChange={handleSectionOnChange} />
+              ))}
             </S.JSONList>
-        </S.JSONWrapper>
-        <S.DownloadA fileLoaded={fileLoaded}
+          </S.JSONWrapper>
+          <S.DownloadA
             type="button"
             href={download()}
-            download={fileName()}
-                     key={updated}
-        >
+            download={createFileName()}
+          >
             <S.DownloadButton>Download</S.DownloadButton>
-        </S.DownloadA>
-        {fileLoaded && <Menu list={menu}/>}
+          </S.DownloadA>
+          <Menu keys={Object.keys(json)} />
+        </>
+      )}
+      {update}
     </S.Wrapper>
   );
 }
@@ -112,19 +91,26 @@ function App() {
 export default App;
 
 type MenuProps = {
-    list:ReactNode[]
-}
-const Menu = ({list}:MenuProps) => {
-    const [open,setOpen] = useState(true)
-    return(
-        <S.Menu open={open}>
-            <S.MenuHeader>
-                <S.MenuTitle>Menu</S.MenuTitle>
-                <S.MenuBurger open={open} onClick={() => {
-    setOpen(!open)
-}}/>
-            </S.MenuHeader>
-            {list.map(x => x)}
-        </S.Menu>
-    )
+  keys: string[];
+};
+const Menu = ({ keys }: MenuProps) => {
+  const [open, setOpen] = useState(true);
+  return (
+    <S.Menu open={open}>
+      <S.MenuHeader>
+        <S.MenuTitle>Menu</S.MenuTitle>
+        <S.MenuBurger
+          open={open}
+          onClick={() => {
+            setOpen(!open);
+          }}
+        />
+      </S.MenuHeader>
+      {keys.map((key) => (
+        <Link to={keyToLinkString(key)} smooth={true} duration={200}>
+          <S.MenuItem type={"H1"}>{key}</S.MenuItem>
+        </Link>
+      ))}
+    </S.Menu>
+  );
 };
